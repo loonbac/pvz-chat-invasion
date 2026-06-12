@@ -51,31 +51,47 @@ No necesitas saber programar para usarlo. Esta guía es todo lo que hace falta.
 | `!zombie` (sin tipo) | Invoca un zombie normal |
 | `!sol` | Regala +25 soles al jugador |
 
-Tipos de zombie disponibles (la palabra que se escribe en el chat):
+Tipos de zombie disponibles — **una sola palabra por zombie** (los acentos
+dan igual: `fútbol` y `futbol` funcionan los dos):
 
 | Palabra | Zombie |
 |---------|--------|
 | `normal` | Zombie básico |
-| `cono` | Cono de tráfico |
-| `balde` o `cubeta` | Cubeta de metal |
 | `bandera` | Abanderado |
-| `polo` o `saltador` | Saltador con pértiga |
+| `cono` | Cono de tráfico |
+| `polo` | Saltador con pértiga |
+| `balde` | Cubeta de metal |
 | `periodico` | Zombie con periódico |
 | `puerta` | Puerta de malla |
 | `futbol` | Jugador de fútbol americano |
 | `bailarin` | Bailarín |
+| `corista` | Bailarín de apoyo |
+| `patito` | Zombie con flotador |
 | `buzo` | Buzo con esnórquel |
 | `zamboni` | Pulidora de hielo |
+| `trineo` | Equipo de trineo |
 | `delfin` | Jinete de delfín |
 | `caja` | Caja sorpresa |
 | `globo` | Zombie con globo |
 | `minero` | Minero |
 | `pogo` | Saltarín pogo |
 | `yeti` | Yeti |
+| `bungee` | Zombie bungee |
 | `escalera` | Zombie con escalera |
 | `catapulta` | Catapulta |
 | `gigante` | Gargantúa |
 | `diablillo` | Diablillo |
+| `ojosrojos` | Gargantúa de ojos rojos |
+| `guisante` | Cabeza de guisante |
+| `nuez` | Cabeza de nuez |
+| `jalapeno` | Cabeza de jalapeño |
+| `gatling` | Cabeza de gatling |
+| `calabaza` | Cabeza de calabaza |
+| `nuezalta` | Cabeza de nuez alta |
+
+> Algunos son situacionales: los acuáticos (`buzo`, `delfin`, `patito`) van a
+> la piscina, y `trineo` o `bungee` pueden comportarse raro fuera de sus
+> niveles. Probarlos es parte de la gracia.
 
 Anti-spam incluido: como máximo un zombie cada 1.5 segundos, aunque el chat
 escriba más rápido (se puede cambiar en la configuración).

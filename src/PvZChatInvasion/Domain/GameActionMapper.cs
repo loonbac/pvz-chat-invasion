@@ -25,38 +25,60 @@ namespace PvZChatInvasion.Domain
 
         /// <summary>
         /// Palabra del chat (español) -> ZombieType real del juego.
-        /// Valores confirmados del enum Il2CppReloaded.Gameplay.ZombieType.
+        /// UN solo nombre por zombie (sin alias). Acentos normalizados antes
+        /// de buscar, así "fútbol" y "futbol" son la misma palabra.
+        /// Enum completo verificado en el binario (40 entradas); quedan FUERA a
+        /// propósito los tipos de niveles especiales que pueden romper una
+        /// partida normal: Boss, Zombatar, Target, TrashCan, Gravestone.
         /// </summary>
         private static readonly Dictionary<string, ZombieType> ZombieByWord =
             new Dictionary<string, ZombieType>(StringComparer.OrdinalIgnoreCase)
             {
                 ["normal"]    = ZombieType.Normal,
-                ["cono"]      = ZombieType.TrafficCone,
-                ["balde"]     = ZombieType.Pail,
-                ["cubeta"]    = ZombieType.Pail,
                 ["bandera"]   = ZombieType.Flag,
+                ["cono"]      = ZombieType.TrafficCone,
                 ["polo"]      = ZombieType.Polevaulter,
-                ["saltador"]  = ZombieType.Polevaulter,
+                ["balde"]     = ZombieType.Pail,
                 ["periodico"] = ZombieType.Newspaper,
                 ["puerta"]    = ZombieType.Door,
                 ["futbol"]    = ZombieType.Football,
                 ["bailarin"]  = ZombieType.Dancer,
+                ["corista"]   = ZombieType.BackupDancer,
+                ["patito"]    = ZombieType.DuckyTube,
                 ["buzo"]      = ZombieType.Snorkel,
                 ["zamboni"]   = ZombieType.Zamboni,
+                ["trineo"]    = ZombieType.Bobsled,
                 ["delfin"]    = ZombieType.DolphinRider,
                 ["caja"]      = ZombieType.JackInTheBox,
                 ["globo"]     = ZombieType.Balloon,
                 ["minero"]    = ZombieType.Digger,
                 ["pogo"]      = ZombieType.Pogo,
                 ["yeti"]      = ZombieType.Yeti,
+                ["bungee"]    = ZombieType.Bungee,
                 ["escalera"]  = ZombieType.Ladder,
                 ["catapulta"] = ZombieType.Catapult,
-                ["gigante"]    = ZombieType.Gargantuar,
-                ["gargantua"]  = ZombieType.Gargantuar,
-                ["gargantuar"] = ZombieType.Gargantuar,
-                ["diablillo"]  = ZombieType.Imp,
-                ["imp"]        = ZombieType.Imp,
+                ["gigante"]   = ZombieType.Gargantuar,
+                ["diablillo"] = ZombieType.Imp,
+                ["ojosrojos"] = ZombieType.RedeyeGargantuar,
+                ["guisante"]  = ZombieType.PeaHead,
+                ["nuez"]      = ZombieType.WallnutHead,
+                ["jalapeno"]  = ZombieType.JalapenoHead,
+                ["gatling"]   = ZombieType.GatlingHead,
+                ["calabaza"]  = ZombieType.SquashHead,
+                ["nuezalta"]  = ZombieType.TallnutHead,
             };
+
+        /// <summary>Quita acentos/diacríticos: "fútbol" -> "futbol", "delfín" -> "delfin".</summary>
+        private static string RemoveDiacritics(string text)
+        {
+            string formD = text.Normalize(System.Text.NormalizationForm.FormD);
+            var sb = new System.Text.StringBuilder(formD.Length);
+            foreach (char c in formD)
+                if (System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c)
+                    != System.Globalization.UnicodeCategory.NonSpacingMark)
+                    sb.Append(c);
+            return sb.ToString().Normalize(System.Text.NormalizationForm.FormC);
+        }
 
         public GameActionMapper(MelonLogger.Instance log, ModConfig config)
         {
@@ -91,7 +113,9 @@ namespace PvZChatInvasion.Domain
             if ((DateTime.UtcNow - _lastSpawn).TotalSeconds < _config.SpawnCooldownSeconds)
                 return; // en cooldown
 
-            string word = string.IsNullOrWhiteSpace(command.Argument) ? "normal" : command.Argument.Trim();
+            string word = string.IsNullOrWhiteSpace(command.Argument)
+                ? "normal"
+                : RemoveDiacritics(command.Argument.Trim());
             if (!ZombieByWord.TryGetValue(word, out ZombieType type))
             {
                 type = ZombieType.Normal;
