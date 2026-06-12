@@ -1,0 +1,9 @@
+# Artefactos de compilación .NET
+bin/
+obj/
+
+# Binarios de terceros descargados (MelonLoader, ReplantAPI) — no redistribuibles
+downloads/
+
+# Config local de tooling de agentes
+.atl/

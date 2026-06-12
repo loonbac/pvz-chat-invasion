@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Mod MelonLoader para PvZ: Replanted (Unity 6 / IL2CPP).
+    Target net6.0: es el runtime que MelonLoader 0.7 usa dentro del juego.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>PvZChatInvasion</AssemblyName>
+    <RootNamespace>PvZChatInvasion</RootNamespace>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <!-- Silencia warnings de versión de los interop assemblies del juego. -->
+    <NoWarn>$(NoWarn);CS0436;MSB3277;NU1701</NoWarn>
+    <GamePath>/home/loonbac/Juegos/SteamLibrary/steamapps/common/PVZ Replanted</GamePath>
+  </PropertyGroup>
+
+  <!-- Dependencias de chat (managed puro, NuGet). -->
+  <ItemGroup>
+    <PackageReference Include="TwitchLib.Client" Version="3.4.0" />
+  </ItemGroup>
+
+  <!-- MelonLoader + Il2CppInterop (Il2CppObjectBase) + ReplantAPI -->
+  <ItemGroup>
+    <Reference Include="$(GamePath)/MelonLoader/net6/MelonLoader.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(GamePath)/MelonLoader/net6/Il2CppInterop.Runtime.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(GamePath)/MelonLoader/net6/Il2CppInterop.Common.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="$(GamePath)/Mods/ReplantAPI.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Interop IL2CPP del juego (Board, ZombieType viven en Assembly-CSharp;
+       el resto son dependencias transitivas). Glob = todas, para no perseguir
+       referencias una por una. Namespaces Il2Cpp* no chocan con el SDK. -->
+  <ItemGroup>
+    <Reference Include="$(GamePath)/MelonLoader/Il2CppAssemblies/*.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Tras compilar, copia el DLL del mod a Mods/. -->
+  <Target Name="CopyToMods" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GamePath)/Mods" SkipUnchangedFiles="false" />
+    <Message Importance="high" Text="Mod copiado a $(GamePath)/Mods/$(AssemblyName).dll" />
+  </Target>
+
+</Project>
