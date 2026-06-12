@@ -22,5 +22,13 @@ namespace PvZChatInvasion.Infrastructure
 
         /// <summary>Llamado desde el hilo del juego (OnUpdate).</summary>
         public bool TryDequeue(out ChatCommand command) => _queue.TryDequeue(out command);
+
+        public bool IsEmpty => _queue.IsEmpty;
+
+        /// <summary>Descarta todo lo pendiente (nivel terminado o sin partida activa).</summary>
+        public void Clear()
+        {
+            while (_queue.TryDequeue(out _)) { }
+        }
     }
 }

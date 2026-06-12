@@ -1,6 +1,7 @@
 using MelonLoader;
 using UnityEngine;
 using ReplantAPI.Managers;          // BoardManager, HotkeyManager
+using Il2CppReloaded.Gameplay;      // Board (estado del nivel)
 using PvZChatInvasion.Domain;
 using PvZChatInvasion.Adapters;
 using PvZChatInvasion.Infrastructure;
@@ -51,7 +52,15 @@ namespace PvZChatInvasion
         public override void OnUpdate()
         {
             // Drenamos en el HILO DEL JUEGO: único lugar seguro para tocar el Board.
-            if (!BoardManager.IsLoaded) return;
+            if (_queue.IsEmpty) return;
+
+            // Solo se actúa con una partida ACTIVA. Fuera de eso (menú, nivel ya
+            // ganado/terminado) los comandos se DESCARTAN: ni spawns en la pantalla
+            // de victoria ni colas que emboscan al empezar el siguiente nivel.
+            if (!BoardManager.IsLoaded) { _queue.Clear(); return; }
+
+            Board board = BoardManager.Board;
+            if (board == null || board.mLevelComplete) { _queue.Clear(); return; }
 
             while (_queue.TryDequeue(out var command))
                 _mapper.Execute(command);
