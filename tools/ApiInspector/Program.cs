@@ -87,6 +87,42 @@ class Program
             }
         }
 
+        // 4) Validación de filas: PickRowForNewZombie + enum PlantRowType
+        Console.WriteLine("\n===== Selección/validación de filas =====");
+        foreach (var th in r.TypeDefinitions)
+        {
+            var td = r.GetTypeDefinition(th);
+            string tname = r.GetString(td.Name);
+
+            if (tname == "PlantRowType" || tname == "RowType")
+            {
+                Console.WriteLine("  enum " + Full(r, td) + ":");
+                foreach (var fh in td.GetFields())
+                {
+                    var fd = r.GetFieldDefinition(fh);
+                    if ((fd.Attributes & FieldAttributes.Literal) == 0) continue;
+                    Console.WriteLine($"      {r.GetString(fd.Name)} = {ReadConst(r, fd.GetDefaultValue())}");
+                }
+            }
+
+            foreach (var mh in td.GetMethods())
+            {
+                var md = r.GetMethodDefinition(mh);
+                string mn = r.GetString(md.Name);
+                if (mn != "PickRowForNewZombie" && mn != "GetPlantRowType"
+                    && mn != "RowCanHaveZombies" && mn != "get_mPlantRow"
+                    && mn != "get_mLevelComplete" && mn != "ZombiesWon"
+                    && mn != "GameOver" && mn != "get_HasLevelStarted") continue;
+                try
+                {
+                    var sig = md.DecodeSignature(new NameProvider(r), null);
+                    var ps = string.Join(", ", sig.ParameterTypes);
+                    Console.WriteLine($"  {sig.ReturnType} {Full(r, td)}.{mn}({ps})");
+                }
+                catch (Exception e) { Console.WriteLine($"  {Full(r, td)}.{mn} (no decodificable: {e.Message})"); }
+            }
+        }
+
         return 0;
     }
 

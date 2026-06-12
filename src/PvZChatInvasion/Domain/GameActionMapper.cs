@@ -23,8 +23,6 @@ namespace PvZChatInvasion.Domain
         // Anti-spam global: un spawn cada SpawnCooldownSeconds (config) como máximo.
         private DateTime _lastSpawn = DateTime.MinValue;
 
-        private readonly Random _rng = new Random();
-
         /// <summary>
         /// Palabra del chat (español) -> ZombieType real del juego.
         /// Valores confirmados del enum Il2CppReloaded.Gameplay.ZombieType.
@@ -53,8 +51,11 @@ namespace PvZChatInvasion.Domain
                 ["yeti"]      = ZombieType.Yeti,
                 ["escalera"]  = ZombieType.Ladder,
                 ["catapulta"] = ZombieType.Catapult,
-                ["gigante"]   = ZombieType.Gargantuar,
-                ["diablillo"] = ZombieType.Imp,
+                ["gigante"]    = ZombieType.Gargantuar,
+                ["gargantua"]  = ZombieType.Gargantuar,
+                ["gargantuar"] = ZombieType.Gargantuar,
+                ["diablillo"]  = ZombieType.Imp,
+                ["imp"]        = ZombieType.Imp,
             };
 
         public GameActionMapper(MelonLogger.Instance log, ModConfig config)
@@ -92,14 +93,23 @@ namespace PvZChatInvasion.Domain
 
             string word = string.IsNullOrWhiteSpace(command.Argument) ? "normal" : command.Argument.Trim();
             if (!ZombieByWord.TryGetValue(word, out ZombieType type))
+            {
                 type = ZombieType.Normal;
-
-            int rows = BoardManager.GetNumRows();
-            if (rows <= 0) rows = 5;
-            int row = _rng.Next(0, rows);
+                _log.Msg($"[{command.Platform}] palabra desconocida '{word}' -> zombie normal (tipos validos: ver README)");
+            }
 
             Board board = BoardManager.Board;
             if (board == null) return;
+
+            // La FILA la elige el propio juego: PickRowForNewZombie respeta las
+            // filas sin césped (Dirt) de los niveles tempranos y manda los zombies
+            // acuáticos a la piscina. Un random(0, GetNumRows()) spawneaba en tierra.
+            int row = board.PickRowForNewZombie(type);
+            if (row < 0 || !board.RowCanHaveZombies(row))
+            {
+                _log.Msg($"[{command.Platform}] {command.User} -> '{word}' descartado: sin fila válida en este nivel");
+                return;
+            }
 
             // Llamada REAL al juego. Segura aquí porque el Core nos invoca desde
             // OnUpdate (hilo del juego) tras comprobar BoardManager.IsLoaded.
